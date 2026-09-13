@@ -81,7 +81,10 @@ jobs:
         run: |
           df -hT
           #echo 'src-git custom https://github.com/kiddin9/kwrt-packages' >> feeds.conf.default
-          ./scripts/feeds update -a && ./scripts/feeds install -a -p luci && ./scripts/feeds install -a -p packages
+          # NSS 硬件加速包源：re-cs-03.config 勾选了 kmod-qca-nss-drv/ecm 等，
+          # 必须接入此 feed，否则 make defconfig 会把这些选项当无效包丢弃 → 固件无 NSS 加速
+          echo 'src-git nss_packages https://github.com/${{ env.NSS_PACKAGES_REPOSITORY }};${{ env.NSS_PACKAGES_REPOSITORY_BRANCH }}' >> feeds.conf.default
+          ./scripts/feeds update -a && ./scripts/feeds install -a -p nss_packages && ./scripts/feeds install -a -p luci && ./scripts/feeds install -a -p packages
           git clone https://github.com/Super-Henry/Openwrt-Passwall2.git package/feeds/luci/luci-app-passwall2
           git clone https://github.com/Super-Henry/Openwrt-Passwall-Packages.git package/utils/passwall2
           git clone https://github.com/jerrykuku/luci-theme-argon.git package/feeds/luci/luci-theme-argon
